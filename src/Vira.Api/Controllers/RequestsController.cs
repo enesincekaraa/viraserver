@@ -1,21 +1,26 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
+using Vira.Application.Features.Comments;
 using Vira.Application.Features.Requests;
 using Vira.Contracts.Requests;
+using Vira.Contracts.Requests.Comments;
+using Vira.Shared;
 
 namespace Vira.Api.Controllers;
 
 [ApiController]
 [Route("api/requests")]
 [Produces("application/json")]
+[Authorize]
 public sealed class RequestsController : ControllerBase
 {
     private readonly ISender _sender;
     public RequestsController(ISender sender) => _sender = sender;
 
-    [Authorize]
+    [EnableRateLimiting("Writes")]
     [HttpPost]
     [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status201Created)]
     public async Task<ActionResult<RequestResponse>> Create([FromBody] CreateRequestRequest body, CancellationToken ct)
@@ -33,7 +38,6 @@ public sealed class RequestsController : ControllerBase
         return r.IsSuccess ? Ok(r.Value) : NotFound(r.Error);
     }
 
-    [Authorize]
     [HttpGet("mine")]
     public async Task<ActionResult> Mine([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] int? status = null, CancellationToken ct = default)
     {
@@ -54,24 +58,39 @@ public sealed class RequestsController : ControllerBase
     }
 
     [Authorize(Roles = "Admin,Operator")]
+    [EnableRateLimiting("Writes")]
     [HttpPost("{id:guid}/assign")]
     public async Task<IActionResult> Assign(Guid id, [FromQuery] Guid? toUserId, CancellationToken ct)
-    { var r = await _sender.Send(new AssignRequestCommand(id, toUserId), ct); return r.IsSuccess ? NoContent() : NotFound(r.Error); }
+    {
+        var uid = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var r = await _sender.Send(new AssignRequestCommand(id, toUserId, uid), ct);
+        return r.IsSuccess ? NoContent() : NotFound(r.Error);
+    }
 
     [Authorize(Roles = "Admin,Operator")]
+    [EnableRateLimiting("Writes")]
     [HttpPost("{id:guid}/resolve")]
     public async Task<IActionResult> Resolve(Guid id, CancellationToken ct)
-    { var r = await _sender.Send(new ResolveRequestCommand(id), ct); return r.IsSuccess ? NoContent() : NotFound(r.Error); }
+    {
+        var uid = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var r = await _sender.Send(new ResolveRequestCommand(id, uid), ct);
+        return r.IsSuccess ? NoContent() : NotFound(r.Error);
+    }
 
     [Authorize(Roles = "Admin,Operator")]
+    [EnableRateLimiting("Writes")]
     [HttpPost("{id:guid}/reject")]
     public async Task<IActionResult> Reject(Guid id, CancellationToken ct)
-    { var r = await _sender.Send(new RejectRequestCommand(id), ct); return r.IsSuccess ? NoContent() : NotFound(r.Error); }
+    {
+        var uid = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var r = await _sender.Send(new RejectRequestCommand(id, uid), ct);
+        return r.IsSuccess ? NoContent() : NotFound(r.Error);
+    }
 
     // ---- Attachments ----
-    [Authorize]
     [HttpPost("{id:guid}/attachments")]
-    [RequestSizeLimit(10_000_000)]
+    [EnableRateLimiting("Uploads")]
+    [RequestSizeLimit(25_000_000)]
     [Consumes("multipart/form-data")]
     public async Task<ActionResult<AttachmentResponse>> Upload(Guid id, IFormFile file, CancellationToken ct)
     {
@@ -85,7 +104,6 @@ public sealed class RequestsController : ControllerBase
 
     // Listele (kullanıcı kendi talebini, admin/operator tüm talepleri görebilir dersen burada yetki kontrolü yapabilirsin;
     // basit tutuyoruz: [Authorize] olan herkes, var olan talebin eklerini listeleyebilir.)
-    [Authorize]
     [HttpGet("{id:guid}/attachments")]
     [ProducesResponseType(typeof(List<AttachmentResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<AttachmentResponse>>> ListAttachments(Guid id, CancellationToken ct)
@@ -102,5 +120,77 @@ public sealed class RequestsController : ControllerBase
         var r = await _sender.Send(new DeleteAttachmentCommand(id, attachmentId), ct);
         return r.IsSuccess ? NoContent() : NotFound(r.Error);
     }
+
+    // --- Comments ---
+    // Ekle
+    [EnableRateLimiting("Comments")]
+    [Authorize]
+    [HttpPost("{id:guid}/comments")]
+    [ProducesResponseType(typeof(CommentResponse), StatusCodes.Status201Created)]
+    public async Task<ActionResult<CommentResponse>> AddComment(Guid id, [FromBody] CreateCommentRequest body, CancellationToken ct)
+    {
+        var uid = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var r = await _sender.Send(new CreateCommentCommand(id, uid, body.Text), ct);
+        if (!r.IsSuccess) return BadRequest(r.Error);
+        return CreatedAtAction(nameof(GetComments), new { id }, r.Value);
+    }
+
+    // Listele(sayfalı)
+    [HttpGet("{id:guid}/comments")]
+    [ProducesResponseType(typeof(PagedResult<CommentResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<CommentResponse>>> GetComments(Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)
+    {
+        var r = await _sender.Send(new ListCommentQuery(id, page, pageSize), ct);
+        return r.IsSuccess ? Ok(r.Value) : NotFound(r.Error);
+    }
+
+    [HttpDelete("{id:guid}/comments/{commentId:guid}")]
+    public async Task<IActionResult> DeleteComment(Guid id, Guid commentId, CancellationToken ct)
+    {
+        var uid = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var IsAdminOrOperator = User.IsInRole("Admin") || User.IsInRole("Operator");
+        var r = await _sender.Send(new DeleteCommentCommand(id, commentId, uid, IsAdminOrOperator), ct);
+        return r.IsSuccess ? NoContent() : NotFound(r.Error);
+    }
+    [EnableRateLimiting("Search")]
+    [HttpGet("nearby")]
+    public async Task<ActionResult<PagedResult<RequestResponse>>> Nearby(
+    [FromQuery] double lat,
+    [FromQuery] double lng,
+    [FromQuery] double radiusKm = 1,
+    [FromQuery] Guid? categoryId = null,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 20,
+    CancellationToken ct = default)
+    {
+        var r = await _sender.Send(new SearchNearbyQuery(lat, lng, radiusKm, categoryId, page, pageSize), ct);
+        return r.IsSuccess ? Ok(r.Value) : BadRequest(r.Error);
+    }
+
+
+    // UPDATE
+    [EnableRateLimiting("Writes")]
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateRequestDto dto, CancellationToken ct)
+    {
+        var cmd = new UpdateRequestCommand(id, dto.Title, dto.Description, dto.CategoryId);
+        var r = await _sender.Send(cmd, ct);
+        return r.IsSuccess ? NoContent() : BadRequest(r.Error);
+    }
+
+    // DELETE
+    [EnableRateLimiting("Writes")]
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        var r = await _sender.Send(new DeleteRequestCommand(id), ct);
+        return r.IsSuccess ? NoContent() : BadRequest(r.Error);
+    }
+
+
+
+
+
+
 
 }

@@ -1,8 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Vira.Application.Features;
-using Vira.Application.Features.Categories;
+using Vira.Application.Features.Category;
 using Vira.Contracts.Categories;
 
 namespace Vira.Api.Controllers;
@@ -31,6 +30,7 @@ public sealed class CategoriesController : ControllerBase
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [Authorize]
     public async Task<ActionResult<CategoryResponse>> GetById([FromRoute] Guid id, CancellationToken ct)
     {
         var result = await _sender.Send(new GetByIdCategoryQuery(id), ct);
@@ -41,6 +41,7 @@ public sealed class CategoriesController : ControllerBase
     /// <summary>List categories (paged, optional search)</summary>
     [HttpGet]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [Authorize]
     public async Task<ActionResult> List([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? search = null, CancellationToken ct = default)
     {
         var result = await _sender.Send(new ListCategoriesQuery(page, pageSize, search), ct);

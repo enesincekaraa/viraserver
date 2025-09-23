@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using Vira.Application.Features.Auth;
 using Vira.Contracts.Auth;
@@ -15,6 +16,8 @@ public sealed class AuthController : ControllerBase
     private readonly ISender _sender;
     public AuthController(ISender sender) => _sender = sender;
 
+    [AllowAnonymous]
+    [EnableRateLimiting("Auth")]
     [HttpPost("register")]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest req, CancellationToken ct)
@@ -23,6 +26,9 @@ public sealed class AuthController : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
 
+
+    [AllowAnonymous]
+    [EnableRateLimiting("Auth")]
     [HttpPost("login")]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest req, CancellationToken ct)
@@ -31,6 +37,8 @@ public sealed class AuthController : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : Unauthorized(result.Error);
     }
 
+    [AllowAnonymous]
+    [EnableRateLimiting("Auth")]
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<AuthResponse>> Refresh([FromBody] RefreshRequest req, CancellationToken ct)

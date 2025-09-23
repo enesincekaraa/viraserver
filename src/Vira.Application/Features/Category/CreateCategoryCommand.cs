@@ -2,10 +2,9 @@
 using MediatR;
 using Vira.Application.Abstractions.Repositories;
 using Vira.Contracts.Categories;
-using Vira.Domain.Entities;
 using Vira.Shared;
 
-namespace Vira.Application.Features;
+namespace Vira.Application.Features.Category;
 public sealed record CreateCategoryCommand(string Name, string? Description) : IRequest<Result<CategoryResponse>>;
 
 
@@ -21,12 +20,12 @@ public sealed class CreateCategoryValidator : AbstractValidator<CreateCategoryCo
     }
 }
 
-public sealed class CreateCategoryCommandHandler(IRepository<Category> _repo, IUnitOfWork _uow)
+public sealed class CreateCategoryCommandHandler(IRepository<Vira.Domain.Entities.Category> _repo, IUnitOfWork _uow)
     : IRequestHandler<CreateCategoryCommand, Result<CategoryResponse>>
 {
     public async Task<Result<CategoryResponse>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
-        var entity = new Category(request.Name, request.Description);
+        var entity = new Vira.Domain.Entities.Category(request.Name, request.Description);
         await _repo.AddAsync(entity, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
 

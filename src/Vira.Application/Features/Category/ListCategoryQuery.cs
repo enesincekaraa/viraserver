@@ -1,10 +1,9 @@
 ﻿using MediatR;
 using Vira.Application.Abstractions.Repositories;
 using Vira.Contracts.Categories;
-using Vira.Domain.Entities;
 using Vira.Shared;
 
-namespace Vira.Application.Features.Categories;
+namespace Vira.Application.Features.Category;
 
 public sealed record ListCategoriesQuery(int Page = 1, int PageSize = 20, string? Search = null)
     : IRequest<Result<PagedResult<CategoryResponse>>>;
@@ -12,8 +11,8 @@ public sealed record ListCategoriesQuery(int Page = 1, int PageSize = 20, string
 public sealed class ListCategoriesHandler
     : IRequestHandler<ListCategoriesQuery, Result<PagedResult<CategoryResponse>>>
 {
-    private readonly IReadRepository<Category> _read;
-    public ListCategoriesHandler(IReadRepository<Category> read) => _read = read;
+    private readonly IReadRepository<Vira.Domain.Entities.Category> _read;
+    public ListCategoriesHandler(IReadRepository<Vira.Domain.Entities.Category> read) => _read = read;
 
     public async Task<Result<PagedResult<CategoryResponse>>> Handle(ListCategoriesQuery q, CancellationToken ct)
     {

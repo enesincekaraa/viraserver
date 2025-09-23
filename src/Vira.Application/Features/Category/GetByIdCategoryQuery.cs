@@ -2,10 +2,9 @@
 using MediatR;
 using Vira.Application.Abstractions.Repositories;
 using Vira.Contracts.Categories;
-using Vira.Domain.Entities;
 using Vira.Shared;
 
-namespace Vira.Application.Features;
+namespace Vira.Application.Features.Category;
 public sealed record GetByIdCategoryQuery(Guid Id) : IRequest<Result<CategoryResponse>>;
 
 
@@ -18,7 +17,7 @@ public sealed class GetCategoryByIdValidator : AbstractValidator<GetByIdCategory
 }
 
 
-public sealed class GetByIdCategoryHandler(IReadRepository<Category> _repo) : IRequestHandler<GetByIdCategoryQuery, Result<CategoryResponse>>
+public sealed class GetByIdCategoryHandler(IReadRepository<Vira.Domain.Entities.Category> _repo) : IRequestHandler<GetByIdCategoryQuery, Result<CategoryResponse>>
 {
     public async Task<Result<CategoryResponse>> Handle(GetByIdCategoryQuery request, CancellationToken cancellationToken)
     {

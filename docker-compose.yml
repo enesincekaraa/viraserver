@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   postgres:
-    image: postgres:16
+    image: postgis/postgis:16-3.4
     container_name: vira_pg
     environment:
       - POSTGRES_USER=postgres
@@ -22,3 +22,6 @@ services:
       - ACCEPT_EULA=Y
     ports:
       - "5341:80"
+volumes:
+    pgdata:
+        

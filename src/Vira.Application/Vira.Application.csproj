@@ -11,6 +11,8 @@
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Mapster" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
 
 
@@ -36,6 +38,9 @@
 	  </Reference>
 	  <Reference Include="Microsoft.IdentityModel.Tokens">
 	    <HintPath>..\..\..\..\nugetpkgs\microsoft.identitymodel.tokens\8.0.1\lib\net9.0\Microsoft.IdentityModel.Tokens.dll</HintPath>
+	  </Reference>
+	  <Reference Include="NetTopologySuite">
+	    <HintPath>..\..\..\..\nugetpkgs\nettopologysuite\2.6.0\lib\netstandard2.1\NetTopologySuite.dll</HintPath>
 	  </Reference>
 	  <Reference Include="System.IdentityModel.Tokens.Jwt">
 	    <HintPath>..\..\..\..\nugetpkgs\system.identitymodel.tokens.jwt\8.0.1\lib\net9.0\System.IdentityModel.Tokens.Jwt.dll</HintPath>

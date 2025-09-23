@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
 
     public DbSet<RequestAttachment> RequestAttachments => Set<RequestAttachment>();
 
+    public object RequestComments { get; internal set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -65,6 +66,10 @@ public class AppDbContext : DbContext
             e.HasIndex(x => new { x.Status, x.CategoryId });
             e.HasIndex(x => x.CreatedByUserId);
 
+            e.Property(x => x.Location)
+                .HasColumnType("geography (Point,4326)"); // metre ile mesafe ölçebilmek için geography
+            e.HasIndex(x => x.Location).HasMethod("GIST"); // spatial index
+
             // kategori ilişkisini “sadece id” ile tutuyoruz; ileride Category navigation eklenebilir.
         });
 
@@ -79,6 +84,23 @@ public class AppDbContext : DbContext
             e.Property(x => x.Url).IsRequired().HasMaxLength(500);
             e.HasIndex(x => x.RequestId);
             e.HasOne<Request>().WithMany().HasForeignKey(x => x.RequestId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<RequestComment>(e =>
+        {
+            e.ToTable("request_comments");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.RequestId).IsRequired();
+            e.Property(x => x.AuthorUserId).IsRequired();
+            e.Property(x => x.Text).IsRequired().HasMaxLength(2000);
+            e.Property(x => x.Type).HasConversion<int>().IsRequired();
+            e.Property(x => x.IsDeleted).IsRequired().HasDefaultValue(false);
+
+            e.HasIndex(x => x.RequestId);
+            e.HasIndex(x => new { x.RequestId, x.IsDeleted });
+
+            e.HasOne<Request>().WithMany().HasForeignKey(x => x.RequestId).OnDelete(DeleteBehavior.Cascade);
+            e.HasQueryFilter(x => !x.IsDeleted);
         });
 
         base.OnModelCreating(modelBuilder);

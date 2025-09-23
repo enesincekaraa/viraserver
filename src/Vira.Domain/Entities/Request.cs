@@ -1,4 +1,5 @@
-﻿using Vira.Shared.Base;
+﻿using NetTopologySuite.Geometries;
+using Vira.Shared.Base;
 
 namespace Vira.Domain.Entities;
 
@@ -16,6 +17,8 @@ public class Request : AuditableEntity<Guid>
 
     public double Latitude { get; private set; }
     public double Longitude { get; private set; }
+
+    public Point? Location { get; private set; } // PostGIS noktası (SRID 4326)
     private Request() { }
 
     public Request(string title, Guid createdByUserId, double latitude, double longitude, string? description = null, Guid? categoryId = null)
@@ -46,5 +49,33 @@ public class Request : AuditableEntity<Guid>
         Status = RequestStatus.Rejected;
         UpdatedAt = DateTime.UtcNow;
     }
+    public void Open()
+    {
+        Status = RequestStatus.Open;
+        UpdatedAt = DateTime.UtcNow;
+    }
+    public void AssignCategory()
+    {
+        Status = RequestStatus.Assigned;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
+    public void SetLocation(Point p)
+    {
+        Location = p;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void Update(string title, string? description, Guid? categoryId)
+    {
+        Title = title;
+        Description = description;
+        CategoryId = categoryId;
+        UpdatedAt = DateTime.UtcNow;
+    }
+    public void SoftDelete(Guid deletedByUserId)
+    {
+        IsDeleted = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
 }

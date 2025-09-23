@@ -1,10 +1,9 @@
 ﻿using FluentValidation;
 using MediatR;
 using Vira.Application.Abstractions.Repositories;
-using Vira.Domain.Entities;
 using Vira.Shared;
 
-namespace Vira.Application.Features.Categories;
+namespace Vira.Application.Features.Category;
 
 public sealed record DeleteCategoryCommand(Guid Id) : IRequest<Result>;
 
@@ -15,10 +14,10 @@ public sealed class DeleteCategoryValidator : AbstractValidator<DeleteCategoryCo
 
 public sealed class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand, Result>
 {
-    private readonly IRepository<Category> _repo;
+    private readonly IRepository<Vira.Domain.Entities.Category> _repo;
     private readonly IUnitOfWork _uow;
 
-    public DeleteCategoryHandler(IRepository<Category> repo, IUnitOfWork uow)
+    public DeleteCategoryHandler(IRepository<Vira.Domain.Entities.Category> repo, IUnitOfWork uow)
     { _repo = repo; _uow = uow; }
 
     public async Task<Result> Handle(DeleteCategoryCommand req, CancellationToken ct)

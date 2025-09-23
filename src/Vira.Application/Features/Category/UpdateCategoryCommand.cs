@@ -2,10 +2,9 @@
 using MediatR;
 using Vira.Application.Abstractions.Repositories;
 using Vira.Contracts.Categories;
-using Vira.Domain.Entities;
 using Vira.Shared;
 
-namespace Vira.Application.Features;
+namespace Vira.Application.Features.Category;
 public sealed record UpdateCategoryCommand(Guid id, string name, string? description) : IRequest<Result<CategoryResponse>>;
 
 public sealed class UpdateCategoryValidator : AbstractValidator<UpdateCategoryCommand>
@@ -20,7 +19,7 @@ public sealed class UpdateCategoryValidator : AbstractValidator<UpdateCategoryCo
     }
 }
 
-public sealed class UpdateCategoryCommandHandler(IRepository<Category> _repo, IUnitOfWork _uow) : IRequestHandler<UpdateCategoryCommand, Result<CategoryResponse>>
+public sealed class UpdateCategoryCommandHandler(IRepository<Vira.Domain.Entities.Category> _repo, IUnitOfWork _uow) : IRequestHandler<UpdateCategoryCommand, Result<CategoryResponse>>
 {
     public async Task<Result<CategoryResponse>> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
     {
@@ -32,7 +31,7 @@ public sealed class UpdateCategoryCommandHandler(IRepository<Category> _repo, IU
 
         if (request.description != entity.Description)
         {
-            typeof(Category).GetProperty(nameof(Category.Description))!.SetValue(entity, request.description);
+            typeof(Vira.Domain.Entities.Category).GetProperty(nameof(Vira.Domain.Entities.Category.Description))!.SetValue(entity, request.description);
             entity.UpdatedAt = DateTime.UtcNow;
         }
         await _repo.UpdateAsync(entity, cancellationToken);

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
+using NetTopologySuite.Geometries;
 using Vira.Application.Abstractions.Repositories;
 using Vira.Contracts.Requests;
 using Vira.Domain.Entities;
@@ -25,14 +26,14 @@ public sealed class CreateRequestValidator : AbstractValidator<CreateRequestComm
     }
 }
 
-public sealed class CreateRequestHandler : IRequestHandler<CreateRequestCommand, Result<RequestResponse>>
+public sealed class CreateRequestHandler(IRepository<Request> _repo, IUnitOfWork _uow, GeometryFactory _gf) : IRequestHandler<CreateRequestCommand, Result<RequestResponse>>
 {
-    private readonly IRepository<Request> _repo; private readonly IUnitOfWork _uow;
-    public CreateRequestHandler(IRepository<Request> repo, IUnitOfWork uow) { _repo = repo; _uow = uow; }
-
     public async Task<Result<RequestResponse>> Handle(CreateRequestCommand c, CancellationToken ct)
     {
         var e = new Request(c.Title, c.UserId, c.Latitude, c.Longitude, c.Description, c.CategoryId);
+        var pt = _gf.CreatePoint(new Coordinate(c.Longitude, c.Latitude));
+        e.SetLocation(pt);
+
         await _repo.AddAsync(e, ct);
         await _uow.SaveChangesAsync(ct);
 
