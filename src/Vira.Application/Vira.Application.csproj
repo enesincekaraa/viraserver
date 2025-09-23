@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Mapster" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" />
+  </ItemGroup>
+
+
+	<ItemGroup>
+		<ProjectReference Include="..\Vira.Contracts\Vira.Contracts.csproj" />
+		<ProjectReference Include="..\Vira.Domain\Vira.Domain.csproj" />
+		<ProjectReference Include="..\Vira.Shared\Vira.Shared.csproj" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <Reference Include="BCrypt.Net-Next">
+	    <HintPath>..\..\..\..\nugetpkgs\bcrypt.net-next\4.0.3\lib\net6.0\BCrypt.Net-Next.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Microsoft.Extensions.Configuration.Abstractions">
+	    <HintPath>..\..\..\..\nugetpkgs\microsoft.extensions.configuration.abstractions\9.0.9\lib\net9.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Microsoft.Extensions.Logging.Abstractions">
+	    <HintPath>..\..\..\..\nugetpkgs\microsoft.extensions.logging.abstractions\9.0.9\lib\net9.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Microsoft.IdentityModel.JsonWebTokens">
+	    <HintPath>..\..\..\..\nugetpkgs\microsoft.identitymodel.jsonwebtokens\8.0.1\lib\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Microsoft.IdentityModel.Tokens">
+	    <HintPath>..\..\..\..\nugetpkgs\microsoft.identitymodel.tokens\8.0.1\lib\net9.0\Microsoft.IdentityModel.Tokens.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.IdentityModel.Tokens.Jwt">
+	    <HintPath>..\..\..\..\nugetpkgs\system.identitymodel.tokens.jwt\8.0.1\lib\net9.0\System.IdentityModel.Tokens.Jwt.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
+
+
+</Project>

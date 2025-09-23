@@ -1,0 +1,6 @@
+@Vira.Api_HostAddress = http://localhost:5124
+
+GET {{Vira.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

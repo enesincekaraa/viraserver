@@ -1,0 +1,8 @@
+﻿<Project>
+	<PropertyGroup>
+		<LangVersion>preview</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Deterministic>true</Deterministic>
+	</PropertyGroup>
+</Project>

@@ -1,0 +1,14 @@
+# Build
+**/bin/
+**/obj/
+
+# VS
+*.user
+*.suo
+.vs/
+
+# Logs
+*.log
+
+# Secrets (zaten user profile altýnda olur)
+secrets.json

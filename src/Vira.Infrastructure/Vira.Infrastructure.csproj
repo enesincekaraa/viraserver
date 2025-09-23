@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Vira.Application\Vira.Application.csproj" />
+		<ProjectReference Include="..\Vira.Domain\Vira.Domain.csproj" />
+		<ProjectReference Include="..\Vira.Shared\Vira.Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="Microsoft.IdentityModel.Tokens">
+	    <HintPath>..\..\..\..\nugetpkgs\microsoft.identitymodel.tokens\8.0.1\lib\net9.0\Microsoft.IdentityModel.Tokens.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.IdentityModel.Tokens.Jwt">
+	    <HintPath>..\..\..\..\nugetpkgs\system.identitymodel.tokens.jwt\8.0.1\lib\net9.0\System.IdentityModel.Tokens.Jwt.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
+
+
+
+</Project>

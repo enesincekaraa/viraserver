@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>6a9b4f4a-7b38-45c8-a1f7-2c307d5b11cf</UserSecretsId>
+  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Scalar.AspNetCore" />
+		<PackageReference Include="Serilog.AspNetCore" />
+		<PackageReference Include="Serilog.Sinks.Console" />
+		<PackageReference Include="Serilog.Sinks.Seq" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Vira.Application\Vira.Application.csproj" />
+		<ProjectReference Include="..\Vira.Infrastructure\Vira.Infrastructure.csproj" />
+		<ProjectReference Include="..\Vira.Contracts\Vira.Contracts.csproj" />
+		<ProjectReference Include="..\Vira.Shared\Vira.Shared.csproj" />
+	</ItemGroup>
+
+
+</Project>
