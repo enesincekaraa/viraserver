@@ -24,6 +24,9 @@
 		<ProjectReference Include="..\Vira.Contracts\Vira.Contracts.csproj" />
 		<ProjectReference Include="..\Vira.Shared\Vira.Shared.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="wwwroot\" />
+	</ItemGroup>
 
 
 </Project>

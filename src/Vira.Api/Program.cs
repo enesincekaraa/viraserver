@@ -84,6 +84,7 @@ app.UseExceptionHandler(errorApp =>
         await ctx.Response.WriteAsJsonAsync(problem);
     });
 });
+app.UseStaticFiles();
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();

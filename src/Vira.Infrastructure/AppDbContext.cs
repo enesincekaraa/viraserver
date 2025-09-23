@@ -11,6 +11,10 @@ public class AppDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
+    public DbSet<Request> Requests => Set<Request>();
+
+    public DbSet<RequestAttachment> RequestAttachments => Set<RequestAttachment>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -44,6 +48,37 @@ public class AppDbContext : DbContext
              .WithMany()
              .HasForeignKey(x => x.UserId)
              .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Request>(e =>
+        {
+            e.ToTable("requests");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Title).IsRequired().HasMaxLength(200);
+            e.Property(x => x.Description).HasMaxLength(2000);
+
+            e.Property(x => x.CategoryId).IsRequired();
+            e.Property(x => x.Latitude).IsRequired();
+            e.Property(x => x.Longitude).IsRequired();
+
+            e.Property(x => x.Status).HasConversion<int>();
+            e.HasIndex(x => new { x.Status, x.CategoryId });
+            e.HasIndex(x => x.CreatedByUserId);
+
+            // kategori ilişkisini “sadece id” ile tutuyoruz; ileride Category navigation eklenebilir.
+        });
+
+        modelBuilder.Entity<RequestAttachment>(e =>
+        {
+            e.ToTable("request_attachments");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.FileName).IsRequired().HasMaxLength(260);
+            e.Property(x => x.OriginalName).IsRequired().HasMaxLength(260);
+            e.Property(x => x.ContentType).IsRequired().HasMaxLength(100);
+            e.Property(x => x.SizeBytes).IsRequired();
+            e.Property(x => x.Url).IsRequired().HasMaxLength(500);
+            e.HasIndex(x => x.RequestId);
+            e.HasOne<Request>().WithMany().HasForeignKey(x => x.RequestId).OnDelete(DeleteBehavior.Cascade);
         });
 
         base.OnModelCreating(modelBuilder);

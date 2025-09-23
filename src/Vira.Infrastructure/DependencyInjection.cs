@@ -2,8 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vira.Application.Abstractions.Auth;
+using Vira.Application.Abstractions.Files;
 using Vira.Application.Abstractions.Repositories;
 using Vira.Infrastructure.Auth;
+using Vira.Infrastructure.Files;
 using Vira.Infrastructure.Repositories;
 
 namespace Vira.Infrastructure;
@@ -22,6 +24,8 @@ public static class DependencyInjection
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
+
+        services.AddScoped<IFileStorage, LocalFileStorage>();
         return services;
     }
 }
