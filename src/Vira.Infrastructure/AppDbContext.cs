@@ -15,7 +15,8 @@ public class AppDbContext : DbContext
 
     public DbSet<RequestAttachment> RequestAttachments => Set<RequestAttachment>();
 
-    public object RequestComments { get; internal set; }
+    public DbSet<AssistTicket> AssistTickets => Set<AssistTicket>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -100,6 +101,23 @@ public class AppDbContext : DbContext
             e.HasIndex(x => new { x.RequestId, x.IsDeleted });
 
             e.HasOne<Request>().WithMany().HasForeignKey(x => x.RequestId).OnDelete(DeleteBehavior.Cascade);
+            e.HasQueryFilter(x => !x.IsDeleted);
+        });
+
+
+        modelBuilder.Entity<AssistTicket>(e =>
+        {
+            e.ToTable("assist_tickets");
+            e.HasKey(x => x.Id);
+
+            e.Property(x => x.Type).HasConversion<int>();
+            e.Property(x => x.Status).HasConversion<int>();
+
+            e.Property(x => x.ElderFullName).IsRequired().HasMaxLength(150);
+            e.Property(x => x.ElderPhone).HasMaxLength(30);
+            e.Property(x => x.Address).IsRequired().HasMaxLength(400);
+
+            e.HasIndex(x => new { x.Status, x.Type });
             e.HasQueryFilter(x => !x.IsDeleted);
         });
 

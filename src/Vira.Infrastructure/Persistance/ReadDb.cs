@@ -12,4 +12,5 @@ public sealed class ReadDb : IReadDb
     public IQueryable<Request> Requests => _db.Requests.AsNoTracking();
     public IQueryable<RequestAttachment> RequestAttachments => _db.RequestAttachments.AsNoTracking();
     public IQueryable<RequestComment> RequestComments => _db.Set<RequestComment>().AsNoTracking();
+    public IQueryable<AssistTicket> AssistTickets => _db.AssistTickets.AsNoTracking();
 }

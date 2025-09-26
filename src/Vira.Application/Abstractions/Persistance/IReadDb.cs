@@ -8,4 +8,6 @@ public interface IReadDb
     IQueryable<Request> Requests { get; }
     IQueryable<RequestAttachment> RequestAttachments { get; }
     IQueryable<RequestComment> RequestComments { get; }
+
+    IQueryable<AssistTicket> AssistTickets { get; }
 }
