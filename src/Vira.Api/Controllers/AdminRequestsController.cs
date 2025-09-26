@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Text;
 using Vira.Application.Features.Requests;
 using Vira.Application.Features.Requests.AdminList;
 using Vira.Application.Features.Requests.Stats;
@@ -65,11 +66,19 @@ public class AdminRequestsController : ControllerBase
     }
 
     // 7) CSV export
-    [HttpGet("export")]
     [EnableRateLimiting("Search")]
-    public async Task<IActionResult> Export([FromQuery] AdminExportCsvQuery q, CancellationToken ct)
+    [HttpGet("export")]
+    [Authorize(Roles = "Admin")]                // istersen Admin,Operator
+    public async Task<IActionResult> Export(
+    [FromQuery] int? status, [FromQuery] Guid? categoryId,
+    [FromQuery] Guid? createdByUserId, [FromQuery] DateTime? fromUtc,
+    [FromQuery] DateTime? toUtc, [FromQuery] string? search,
+    CancellationToken ct)
     {
-        var bytes = await _sender.Send(q, ct);
-        return File(bytes, "text/csv; charset=utf-8", $"requests_{DateTime.UtcNow:yyyyMMddHHmmss}.csv");
+        var (name, csv, contentType) = await _sender.Send(
+            new AdminExportCsvQuery(status, categoryId, createdByUserId, fromUtc, toUtc, search), ct);
+
+        return File(Encoding.UTF8.GetBytes(csv), contentType, name);
     }
+
 }

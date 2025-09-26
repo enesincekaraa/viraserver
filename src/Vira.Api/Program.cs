@@ -227,6 +227,13 @@ app.UseExceptionHandler(errorApp =>
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSerilogRequestLogging();
+app.Use(async (ctx, next) =>
+{
+    ctx.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    ctx.Response.Headers["X-Frame-Options"] = "DENY";
+    ctx.Response.Headers["Referrer-Policy"] = "no-referrer";
+    await next();
+});
 app.UseCors("frontend");
 
 app.UseAuthentication();
